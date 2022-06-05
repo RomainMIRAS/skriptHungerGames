@@ -1,0 +1,110 @@
+#---------------------------------------------------------------------------#
+#						 FILL LES COFFRES	+ liste kit					                          #
+#---------------------------------------------------------------------------#
+
+command /readkit:#Savoir les kits des joueurs
+	trigger:
+		if player is op:
+			loop {Kit::*}:
+				message "&eIndex : &f%loop-index% - &eValue : &f%loop-value%"
+
+command /readcoffre:#Savoir les emplacements de coffre possible filable
+	trigger:
+		if player is op:
+			message "&eTest"
+			loop {coffre::*}:
+				message "&eIndex : &f%loop-index% - &eValue : &f%loop-value%"
+
+command /addCoffre:#Ajouter un coffre possible filable
+	trigger:
+		if player is op:
+			add location of target block to {Coffre::*}
+			message "&eLe nombre &f%location of target block% &ea bien été ajoutée !"
+
+command /removeCoffre:#Ajouter un coffre possible filable
+	trigger:
+		if player is op:
+			loop {Coffre::*}:
+				if location of target block is equal to loop-value:
+					delete {Coffre::%loop-index%}
+					send "&eLe coffre &f%location of target block% &ea bien été supprimé !"
+
+command /CoffrePlein [<integer>]:
+	trigger:
+		if player is op:
+			set {Coffre.%arg-integer%} to location of target block
+			message "&eLe coffre &e%arg-integer% à pris la pos &f%location of target block%!"
+
+command /clearList:
+	trigger:
+		clear {Coffre::*}
+		message "<yellow>La liste à bien été vidée"
+
+command /fillcoffre:
+	executable by: console
+	trigger:
+		loop {Coffre::*}:
+			set {nombrerandom} to random integer between 1 and 42
+			set block at {Coffre::%loop-index%} to chest
+			set slot 0 of inventories of block at {Coffre::%loop-index%} to slot 0 of block at {Coffre.%{nombrerandom}%}
+			set slot 1 of inventories of block at {Coffre::%loop-index%} to slot 1 of block at {Coffre.%{nombrerandom}%}
+			set slot 2 of inventories of block at {Coffre::%loop-index%} to slot 2 of block at {Coffre.%{nombrerandom}%}
+			set slot 3 of inventories of block at {Coffre::%loop-index%} to slot 3 of block at {Coffre.%{nombrerandom}%}
+			set slot 4 of inventories of block at {Coffre::%loop-index%} to slot 4 of block at {Coffre.%{nombrerandom}%}
+			set slot 5 of inventories of block at {Coffre::%loop-index%} to slot 5 of block at {Coffre.%{nombrerandom}%}
+			set slot 6 of inventories of block at {Coffre::%loop-index%} to slot 6 of block at {Coffre.%{nombrerandom}%}
+			set slot 7 of inventories of block at {Coffre::%loop-index%} to slot 7 of block at {Coffre.%{nombrerandom}%}
+			set slot 8 of inventories of block at {Coffre::%loop-index%} to slot 8 of block at {Coffre.%{nombrerandom}%}
+			set slot 9 of inventories of block at {Coffre::%loop-index%} to slot 9 of block at {Coffre.%{nombrerandom}%}
+			set slot 10 of inventories of block at {Coffre::%loop-index%} to slot 10 of block at {Coffre.%{nombrerandom}%}
+			set slot 11 of inventories of block at {Coffre::%loop-index%} to slot 11 of block at {Coffre.%{nombrerandom}%}
+			set slot 12 of inventories of block at {Coffre::%loop-index%} to slot 12 of block at {Coffre.%{nombrerandom}%}
+			set slot 13 of inventories of block at {Coffre::%loop-index%} to slot 13 of block at {Coffre.%{nombrerandom}%}
+			set slot 14 of inventories of block at {Coffre::%loop-index%} to slot 14 of block at {Coffre.%{nombrerandom}%}
+			set slot 15 of inventories of block at {Coffre::%loop-index%} to slot 15 of block at {Coffre.%{nombrerandom}%}
+			set slot 16 of inventories of block at {Coffre::%loop-index%} to slot 16 of block at {Coffre.%{nombrerandom}%}
+			set slot 17 of inventories of block at {Coffre::%loop-index%} to slot 17 of block at {Coffre.%{nombrerandom}%}
+			set slot 18 of inventories of block at {Coffre::%loop-index%} to slot 18 of block at {Coffre.%{nombrerandom}%}
+			set slot 19 of inventories of block at {Coffre::%loop-index%} to slot 19 of block at {Coffre.%{nombrerandom}%}
+			set slot 20 of inventories of block at {Coffre::%loop-index%} to slot 20 of block at {Coffre.%{nombrerandom}%}
+			set slot 21 of inventories of block at {Coffre::%loop-index%} to slot 21 of block at {Coffre.%{nombrerandom}%}
+			set slot 22 of inventories of block at {Coffre::%loop-index%} to slot 22 of block at {Coffre.%{nombrerandom}%}
+			set slot 23 of inventories of block at {Coffre::%loop-index%} to slot 23 of block at {Coffre.%{nombrerandom}%}
+			set slot 24 of inventories of block at {Coffre::%loop-index%} to slot 24 of block at {Coffre.%{nombrerandom}%}
+			set slot 25 of inventories of block at {Coffre::%loop-index%} to slot 25 of block at {Coffre.%{nombrerandom}%}
+			set slot 26 of inventories of block at {Coffre::%loop-index%} to slot 26 of block at {Coffre.%{nombrerandom}%}
+
+
+				# set inventories of block at {Coffre::%loop-index%} to inventories of block at {Coffre.%{nombrerandom}%}
+
+#---------------------------------------------------------------------------#
+#						 Position des joueurs et tp de				                          #
+#---------------------------------------------------------------------------#
+
+
+command /posa [<player>] [<integer>]:
+	trigger:
+		if player is op:
+			set {Position.%arg-player%} to arg-integer
+
+
+command /poslist:
+	trigger:
+		if player is op:
+			loop all players:
+				send "&aPosition %{Position.%loop-player%}% définit pour %loop-player%!" to player
+
+command /gamepos [<text=help>] [<integer>]:
+	trigger:
+		if player is op:
+			if arg 1 is "help":
+				send "&e-------------- &fAide: &bSky Defender&e--------------"
+				send "&7Il faut définir les pos des outils en pointant le bloc, en voici la liste :"
+				send "&6tp (Emplacement de tp de joueurs)"
+			if arg 1 is "tp":
+				set {HungerGames.%arg-integer%} to location of target block
+				send "&aTéléporteur %arg-integer% définit ! &6%{HungerGames.%arg-integer%}%"
+
+command /tpa [<integer>]:#Test du TP
+	trigger:
+		teleport player to {HungerGames.%arg-integer%}

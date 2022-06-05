@@ -1,0 +1,59 @@
+#---------------------------------------------------------------------------#
+#					       	  CLEAR KIT							                                  #
+#---------------------------------------------------------------------------#
+
+# Maitre des ombres
+
+on death of player: #clear drop spécifique
+	loop drops:
+		if loop-item is gunpowder:
+			remove loop-item from drops
+
+on drop:
+  if item is gunpowder:
+    cancel event
+
+# THOR
+
+on death :
+  loop drops:
+    if "%name of loop-value%" is "&eMjöllnir" or "&fWeb trap" :
+      remove loop-item from drops
+
+on drop :
+  if name of event-item is "&eMjöllnir" or "&fWeb trap" :
+    cancel event
+
+
+# Tracker de joueur
+
+on death of player: #clear drop spécifique
+	loop drops:
+		if loop-item is compass:
+			remove loop-item from drops
+
+on drop:
+  if item is compass:
+    cancel event
+
+# Capacité
+
+on death of player: #clear drop spécifique
+	loop drops:
+		if loop-item is nether star:
+			remove loop-item from drops
+
+on drop:
+  if item is nether star:
+    cancel event
+
+# JetPack
+
+on death of player: #clear drop spécifique
+	loop drops:
+		if loop-item is feather:
+			remove loop-item from drops
+
+on drop:
+  if item is feather:
+    cancel event

@@ -1,0 +1,458 @@
+
+
+command /joueur:
+  trigger:
+    send "&eJoueurs en ligne : &r%number of all players%" to player
+
+on right click with a feather:
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "Jetpack":
+      remove 1 feather from the player's tool
+      push the player upwards with velocity 1.1
+      push the player horizontal facing of player with velocity 1.5
+
+on right click with a iron axe:
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "Thor":
+      if name of player's tool is "&eMjöllnir":
+        set {cooldownV.%player%} to difference between now and {timer.%player%}
+        if difference between {timer.%player%} and now is more than 40 seconds:
+          make player execute command "/triggerthor"
+        else if {timer.%player%} is not set:
+          make player execute command "/triggerthor"
+        else:
+          set action bar of player to "En Recharge ! &4%{cooldownV.%player%}% sur 40&f, chargé à &b%{chargement.%player%}% %% "
+          wait 1 seconds
+          set {atta.%player%} to "n"
+  else:
+    set action bar of player to "Le pvp n'est pas activé !"
+
+command /triggerthor:
+  trigger:
+    if {chargement.%player%} is not 100:
+      set {chargement.%player%} to {chargement.%player%}+25
+    set {atta.%player%} to "y"
+    loop all players in radius 10 around the player:
+      strike lightning effect at the player
+      set {timer.%player%} to now
+      if {atta.%loop-player%} is not set:
+        strike lightning effect at the loop-player
+        damage loop-players by 3
+      else if {atta.%loop-player%} is "n":
+        strike lightning effect at the loop-player
+        damage loop-players by 3
+    set {atta.%player%} to "n"
+    if {chargement.%player%} is 100:
+      enchant the player's tool with sharpness 1
+
+on rightclick with nether star:
+  if {Kit::%player%} is "Poison":
+    if {HungerGames.PVP} is set :
+      set {cooldownV.%player%} to difference between now and {timer.%player%}
+      if difference between {timer.%player%} and now is more than 40 seconds:
+        make player execute command "/triggerpoison"
+      else if {timer.%player%} is not set:
+        make player execute command "/triggerpoison"
+      else:
+        set action bar of player to "&2En Recharge ! &4%{cooldownV.%player%}% sur 40"
+
+command /triggerpoison:
+  trigger:
+    set {Pos%player%} to location of player
+    set {time%player%} to 0
+    set {timer.%player%} to now
+    loop blocks in radius 6 around location of player:
+      if loop-block is not air or grass or jungle leaves or poppy or dandelion or orchid or fern or dirt:
+        add type of loop-block to {PoisonB.%player%::*}
+        add Position of loop-block to {PoisonE.%player%::*}
+        set loop-block to grass
+      else if block below loop-blocks is grass:
+        set loop-block to jungle leaves or poppy or dandelion or orchid or air or air or air or fern
+    while {time%player%} is smaller than 10:
+      wait 1 second
+      loop all players:
+        if distance between loop-player and {Pos%player%} <= 6:
+          if {Kit::%loop-player%} is "Poison":
+            apply regeneration tier 2 to loop-player for 1.5 seconds
+          else:
+            apply poison tier 2 to loop-player for 1.5 seconds
+        show 40 "villager_happy" particles at location of {Pos%player%} for loop-players offset by 5, 1.5, 5
+      set {time%player%} to {time%player%}+1
+    loop blocks in radius 6 around {Pos%player%}:
+      if loop-block is poppy or jungle leaves or dandelion or fern or orchid:
+        set loop-block to air
+    loop {PoisonE.%player%::*}:
+      set the block at location x-coord of {PoisonE.%player%::%loop-index%}, y-coord of {PoisonE.%player%::%loop-index%}, z-coord of {PoisonE.%player%::%loop-index%} in player's world to {PoisonB.%player%::%loop-index%}
+    clear {PoisonE.%player%::*}
+    clear {PoisonB.%player%::*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+on drink water bottle:
+  if {HungerGames.PVP} is set :
+    if name of player's tool is "&1&lVodka":
+      remove strength from player
+      remove nausea from player
+      apply strength tier 2 to player for 20 seconds
+      wait 5 seconds
+      apply nausea tier 1 to player for 10 seconds
+  else:
+    cancel event
+    set action bar of player to "&4PvP pas actif !"
+
+on damage:
+  if {Kit::%attacker%} is "Vampire":
+    if attacker is holding wood sword:
+      if attacker is a player:
+        if victim is a player:
+          heal attacker by 2
+
+
+command /spider1:
+  trigger:
+    set {%player%.centre} to location of target player
+    loop blocks in radius 6 around {%player%.centre}:
+      set {timer.%player%} to now
+      if loop-blocks are air:
+        set loop-blocks to cobweb
+    loop blocks in radius 5 around {%player%.centre}:
+      if loop-blocks are cobweb:
+        set loop-blocks to air
+    wait 5 seconds
+    make player execute command "/spider2"
+
+command /spider2:
+  trigger:
+    loop blocks in radius 6 around {%player%.centre}:
+      if loop-blocks are cobweb:
+        set loop-blocks to air
+    delete {%player%.centre}
+
+on right click with a nether star:
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "Spider":
+      if name of player's tool is "&f&lWeb trap":
+        set {cooldownV.%player%} to difference between now and {timer.%player%}
+        if difference between {timer.%player%} and now is more than 40 seconds:
+          make player execute command "/spider1"
+        else if {timer.%player%} is not set:
+          make player execute command "/spider1"
+        else:
+          set action bar of player to "&fEn Recharge ! &4%{cooldownV.%player%}% sur 40"
+
+on right click on entity:
+  make the player ride the clicked entity
+
+on right click using mushroom stew:
+  if {HungerGames.PVP} is set :
+    remove 1 mushroom stew from the player's tool
+    wait 0.1 tick
+    set player's tool to bowl
+    increase the player's health by 3
+
+
+
+on consume a pumpkin pie:
+  if {HungerGames.PVP} is set :
+    remove speed from player
+    remove resistance from player
+    remove absorption from player
+    apply speed tier 2 to player for 20 seconds
+    apply resistance tier 1 to player for 20 seconds
+    apply absorption tier 1 to player for 1 minute
+
+on right click with a wood shovel:
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "Mamie":
+      if player's food level is greater than 1.5:
+        reduce the player's food level by 2
+        set {progression.%player%} to {progression.%player%}+10
+        set action bar of player to "&b%{progression.%player%}% %% &ePour la préparation"
+        if {progression.%player%} is 100:
+          give 1 pumpkin pie named "&5&lgâteau à la moutarde" to player
+          set {progression.%player%} to 0
+          set action bar of player to "&ePréparation terminée : nouveau &5&lgâteau à la moutarde !"
+
+
+on right click with a tnt:
+  if {HungerGames.PVP} is not set :
+    if name of player is "Grimmjoow" or "Inspecteur_CF" or "Crypto_loubard":
+      cancel event
+      remove 1 tnt block from the player's inventory
+      make player execute command "/tnt"
+
+command /tnt:
+  executable by: players
+  trigger:
+    make player shoot a tnt with velocity 1.5
+
+on explode:
+  cancel event
+  create a safe explosion of force 3
+
+
+command /kit [<text=liste>] [<text=info>]:
+	trigger:
+		if player is player:
+			if arg 1 is "liste":
+				send "&e-------------- &fAide: &4Hunger Games&e--------------"
+				send "&8Pour selectioner votre kit : /kit nomDuKit join"
+				send "&8Pour plus d'informations sur un kit en question : /kit nomDuKit info"
+				send "&7&lVoici la liste de tout les kits Hunger Games:"
+				send "&6-&eThor"
+				send "&6-&2Poison"
+				send "&6-&7Russkov"
+				send "&6-&fJetpack"
+				send "&6-&8Spider"
+				send "&6-&5Grand Mère"
+			if arg 1 is "Thor":
+				if arg 2 is "info":
+					send "&4&lPour selectioner votre kit : /kit nomDuKit join"
+					send "&fLe kit &eThor &fest pourvue d'une hache en fer qui vous permet de foudroyer vos ennemies"
+				if arg 2 is "join":
+					set {Kit::%player%} to "Thor"
+					send "&8[&9HungerGames&8] &6Votre kit : &eThor"
+					close the player's inventory
+			if arg 1 is "Poison":
+				if arg 2 is "info":
+					send "&4&lPour selectioner votre kit : /kit nomDuKit join"
+					send "&fLe kit &2Poison permet au joueur qui l'a choisie de creer une zone qui le soigne et qui empoisone ses ennemies"
+				if arg 2 is "join":
+					set {Kit::%player%} to "Poison"
+					send "&8[&9HungerGames&8] &6Votre kit : &ePoison Ivy"
+					close the player's inventory
+			if arg 1 is "Russkov":
+				if arg 2 is "info":
+					send "&4&lPour selectioner votre kit : /kit nomDuKit join"
+					send "&fLe kit &7Russkov &f vous offre 3 vodka qui vous rende ivre mais aussi très fort "
+				if arg 2 is "join":
+					set {Kit::%player%} to "Russkov"
+					send "&8[&9HungerGames&8] &6Votre kit : &eRusskov"
+					close the player's inventory
+			if arg 1 is "Jetpack":
+				if arg 2 is "info":
+					send "&4&lPour selectioner votre kit : /kit nomDuKit join"
+					send "&fLe kit Jetpack vous offre une plume qui permet de voler"
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &eJetpack"
+					set {Kit::%player%} to "Jetpack"
+					close the player's inventory
+			if arg 1 is "Spider":
+				if arg 2 is "info":
+					send "&4&lPour selectioner votre kit : /kit nomDuKit join"
+					send "&fLe kit &8Spider &f permet de creer une toile d'araignée pour empecher vos adversaires de fuir !"
+				if arg 2 is "join":
+					set {Kit::%player%} to "Spider"
+					send "&8[&9HungerGames&8] &6Votre kit : &eSpider"
+					close the player's inventory
+			if arg 1 is "Mamie":
+				if arg 2 is "info":
+					send "&fLe kit &5Grand mère vous offre : une cuillère en bois , des tartes pour courrir plus vite et un tablier"
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &eGrand mère"
+					set {Kit::%player%} to "Mamie"
+					close the player's inventory
+			if arg 1 is "terroriste":
+				if arg 2 is "info":
+					send "&f//"
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &eTerroriste"
+					set {Kit::%player%} to "terroriste"
+					close the player's inventory
+			if arg 1 is "pvpsoupe":
+				if arg 2 is "info":
+					send "&f//"
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &ePVP soupe"
+					set {Kit::%player%} to "pvpsoupe"
+					close the player's inventory
+			if arg 1 is "detraqueur":
+				if arg 2 is "info":
+					send "&f//"
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &eDétraqueur"
+					set {Kit::%player%} to "detraqueur"
+					close the player's inventory
+			if arg 1 is "MR.Freeze":
+				if arg 2 is "info":
+					send "&f//"
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &eMR.Freeze"
+					set {Kit::%player%} to "MR.Freeze"
+					close the player's inventory
+			if arg 1 is "Ombre":
+				if arg 2 is "join":
+					send "&8[&9HungerGames&8] &6Votre kit : &eMaitre des ombres"
+					set {Kit::%player%} to "Ombre"
+					close the player's inventory
+
+command /givekit:
+  executable by: console
+  trigger:
+    loop all players:
+      if {Kit::%loop-player%} is "Thor":
+        give 1 iron axe  named "&eMjöllnir" to loop-player
+        set {chargement.%loop-player%} to 0
+      if {Kit::%loop-player%} is "Jetpack":
+        give 20 feather named "JetPack" to loop-player
+        equip loop-player with leather boots of feather falling 4 named "Amortisseur Celestes"
+        wait 1 tick
+        dye the loop-player's boots white
+      if {Kit::%loop-player%} is "Russkov":
+        set slot 0 of loop-player to 3 water bottle named "&1&lVodka"
+      if {Kit::%loop-player%} is "Spider":
+        give 1 nether star named "&f&lWeb trap" to loop-player
+      if {Kit::%loop-player%} is "Mamie":
+        give 3 pumpkin pie named "&5&lgâteau à la moutarde" to loop-player
+        give 1 wooden shovel named "&5&lCuillère de couisine" to loop-player
+        equip loop-player with leather chestplate named "&5&lTablier de grand-mère"
+        wait 1 tick
+        dye the loop-player's chestplate purple
+        set {progression.%loop-player%} to 0
+      if {Kit::%loop-player%} is "PVPsoupe":
+        give 3 mushroom stew named "soup" to loop-player
+      if {Kit::%loop-player%} is not set :
+        send loop-player title "&cTA PAS DE KIT GROSSE MERDE"
+      if {Kit::%loop-player%} is "Poison":
+        give 1 nether star named "&2&lFlower power" to loop-player
+        equip loop-player with leather chestplate named "&2&lTenu de botaniste"
+        equip loop-player with leather leggings named "&2&lPantalon de botaniste"
+        wait 1 tick
+        dye the loop-player's chestplate green
+        dye the loop-player's leggings green
+      if {Kit::%loop-player%} is "Ombre":
+        give 1 gunpowder named "&8&lTaillade des ombres" to loop-player
+        equip loop-player with leather chestplate named "&8&lTunique du clan Kinkou "
+        equip loop-player with leather leggings named "&8&lJambière du clan Kinkou"
+        wait 1 tick
+        dye the loop-player's chestplate dark gray
+        dye the loop-player's leggings dark gray
+      if {Kit::%loop-player%} is "MR.Freeze":
+        give 1 nether star named "&3&lIce Beam" to loop-player
+      if {Kit::%loop-player%} is "detraqueur":
+        give 1 nether star named "&8&lbaiser du détraqueur" to loop-player
+        equip loop-player with wither skeleton head
+        equip loop-player with leather chestplate named "&0&lTenu du Détraqueur "
+        equip loop-player with leather leggings named "&0&lJambière du Détraqueur"
+        equip loop-player with leather boots named "Botte du Détraqueur"
+        wait 1 tick
+        dye the loop-player's chestplate black
+        dye the loop-player's leggings black
+        dye the loop-player's boots black
+
+
+
+
+
+
+on rightclick with nether star :
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "MR.Freeze":
+      set {cooldownV.%player%} to difference between now and {timer.%player%}
+      if difference between {timer.%player%} and now is more than 40 seconds:
+        make player execute command "/triggerfreeze"
+      else if {timer.%player%} is not set:
+        make player execute command "/triggerfreeze"
+      else:
+        set action bar of player to "&3En Recharge ! &4%{cooldownV.%player%}% sur 40"
+
+command /triggerfreeze:
+  trigger:
+    set {timer.%player%} to now
+    loop blocks in radius 6 around location of player:
+      if loop-block is not air or ice or packed ice:
+        add type of loop-block to {FreezeB.%player%::*}
+        add Position of loop-block to {FreezeE.%player%::*}
+        set loop-block to ice or packed ice
+    wait 2 seconds
+    loop {FreezeE.%player%::*}:
+      set the block at location x-coord of {FreezeE.%player%::%loop-index%}, y-coord of {FreezeE.%player%::%loop-index%}, z-coord of {FreezeE.%player%::%loop-index%} in player's world to {FreezeB.%player%::%loop-index%}
+    clear {FreezeE.%player%::*}
+    clear {FreezeB.%player%::*}
+
+on rightclick with nether star :
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "detraqueur":
+      set {cooldownV.%player%} to difference between now and {timer.%player%}
+      if difference between {timer.%player%} and now is more than 20 seconds:
+        make player execute command "/triggerdetrak"
+      else if {timer.%player%} is not set:
+        make player execute command "/triggerdetrak"
+      else:
+        set action bar of player to "&8En Recharge ! &4%{cooldownV.%player%}% sur 20"
+
+command /triggerdetrak:
+  trigger:
+    set {timer.%player%} to now
+    loop blocks in radius 6 around location of player:
+      if loop-block is not air or nether brick or nether quartz ore or coal block or soul sand or water or sand:
+        add type of loop-block to {DétraqueurB.%player%::*}
+        add Position of loop-block to {DétraqueurE.%player%::*}
+        set loop-block to nether brick or nether quartz ore or coal block or soul sand
+    loop all players:
+      if distance between loop-player and player <= 6:
+        if loop-player is not player:
+          apply slowness tier 1 to loop-player for 10 seconds
+          apply blindness tier 2 to loop-player for 10 seconds
+    wait 10 seconds
+    loop {DétraqueurE.%player%::*}:
+      set the block at location x-coord of {DétraqueurE.%player%::%loop-index%}, y-coord of {DétraqueurE.%player%::%loop-index%}, z-coord of {DétraqueurE.%player%::%loop-index%} in player's world to {DétraqueurB.%player%::%loop-index%}
+    clear {DétraqueurE.%player%::*}
+    clear {DétraqueurB.%player%::*}
+
+on rightclick with gunpowder:
+  if {HungerGames.PVP} is set :
+    if {Kit::%player%} is "Ombre":
+      if distance between player and target player is smaller than 20:
+        send "Juif"
+        show smoke at the player to all players
+        show smoke at the player to all players
+        show smoke at the player to all players
+        show smoke at the player to all players
+        play raw sound "fireworks.blast" at player with pitch 5.1 volume 1
+        apply blindness tier 1 to target player for 1.5 seconds
+        teleport player behind target player
+        hide the player from all players
+        wait 2 seconds
+        reveal the player from all players
+
+on rightclick with spider eye:
+  if {Kit::%player%} is set:
+    set {cooldownV.%player%} to difference between now and {timer.%player%}
+    if difference between {timer.%player%} and now is more than 10 seconds:
+      make the player shoot a fireball at speed 0.1
+      set {timer.%player%} to now
+    else if {timer.%player%} is not set:
+      make the player shoot a fireball at speed 0.1
+      set {timer.%player%} to now
+    else:
+      set action bar of player to "En Recharge ! &4%{cooldownV.%player%}% sur 10"
+
+on rightclick with blaze powder:
+  if {Kit::%player%} is set:
+    set {TRV.%player%} to 0
+    set {cooldownV.%player%} to difference between now and {timer.%player%}
+    if difference between {timer.%player%} and now is more than 10 seconds:
+      make player execute command "/triggerfeu"
+    else if {timer.%player%} is not set:
+      make player execute command "/triggerfeu"
+    else:
+      set action bar of player to "En Recharge ! &4%{cooldownV.%player%}% sur 10"
+
+command /triggerfeu:
+  trigger:
+    while {TRV.%player%} is smaller than 10:
+      show smoke at the player to all players
+      play raw sound "fire.fire" at player with pitch 5.1 volume 1
+      set {TRV.%player%} to {TRV.%player%}+1

@@ -1,0 +1,481 @@
+#--------------------------------------------------------------------------------------------------------------
+#                             LOAD
+#--------------------------------------------------------------------------------------------------------------
+
+on load:
+	# execute console command "/game reset"
+	execute console command "/gamerule randomtickspeed 0"
+	set {HungerGames.Players} to number of all players
+
+#---------------------------------------------------------------------------#
+#					    	 SYSTEME DU MOTD							                            	#
+#---------------------------------------------------------------------------#
+
+on server list ping:
+	if {HungerGames.isStart} is not set: #Si le jeu n'est pas lancé
+		set motd to "&6&k|| &4&l Hunger Games &6&k||  &7 En attente de joueurs ... "
+	else:
+		set motd to "&6&k|| &4&l Hunger Games &6&k||  &a Partie en cours ! "
+
+#---------------------------------------------------------------------------#
+#					      	SYSTEME DE DE/CONNEXION							                      #
+#---------------------------------------------------------------------------#
+
+on join:
+	set {Position.%player%} to number of all players
+	delete {timer.%player%}
+	delete {cooldownV.%player%}
+	if {HungerGames.isStart} is not set: #Si le jeu n'est pas lancé
+		set {HungerGames.Players} to number of all players
+		delete {Kit::%player%}
+		teleport player to location (-7.5, 57, 452.5) #TP à la WaitingRoom
+		clear player's inventory
+		set the gamemode of the player to adventure #Gamemode aventure au joueur
+		increase the player's food level by 10
+		if the freeze state of player is true:
+			set the freeze state of player to false
+		heal player #Heal le joueur
+		set slot 0 of inventory of event-player to a name tag named "&6Choisir un kit &7(Clic-droit)"
+	else: #Si le jeu est lancé
+		if the freeze state of player is true:
+			set the freeze state of player to false
+		set gamemode of player to spectator
+		teleport player to location (-0.5, 65, 3.5) #TP au milieu de map
+
+on quit:
+	loop all players:
+		if {Position.%loop-player%} is equal to number of all players:
+			set {Position.%loop-player%} to {Position.%player%}
+			delete {Position.%player%}
+
+on quit:
+	if {HungerGames.isStart} is not set: #Si le jeu pas est lancé
+		remove 1 from {HungerGames.Players}
+	if {HungerGames.isStart} is set: #Si le jeu est lancé
+		if gamemode of player is adventure:
+			play raw sound "mob.wither.spawn" at all players with pitch 1 volume 100
+			remove 1 from {HungerGames.Players}
+			broadcast "&7Le tribut &e%player% &7à soudainement disparue"
+
+#---------------------------------------------------------------------------#
+#					     	  WAITINGROOM SYST								                          #
+#---------------------------------------------------------------------------#
+
+on place:
+	if {HungerGames.isStart} is not set:
+		if player is not op:
+			cancel event
+	if {HungerGames.isPaused} is set:
+		cancel event
+		send "&cLa partie est en pause !"
+
+# on break:
+# 	if {HungerGames.isStart} is not set:
+# 		cancel event
+# 	if {HungerGames.isPaused} is set:
+# 		cancel event
+# 		send "&cLa partie est en pause !"
+
+
+on drop: #Evite le drop en lobby
+	if {HungerGames.isStart} is not set:
+		cancel event
+	if {HungerGames.isPaused} is set:
+		cancel event
+		send "&cLa partie est en pause !"
+
+
+On Hunger meter Change: #Evite le changement de faim
+	if {HungerGames.isStart} is not set:
+		if the player's food level is not 10:
+			increase the player's food level by 10
+	if {HungerGames.isPaused} is set:
+		cancel event
+
+
+On damage: #Evite le changement de vie
+	if {HungerGames.isStart} is not set: #Si le jeu n'est pas lancé
+		cancel event
+	if {HungerGames.isPaused} is set:
+		cancel event
+
+
+
+#---------------------------------------------------------------------------#
+#					     		DETECTION LATENCE							                            #
+#---------------------------------------------------------------------------#
+
+command /lag:
+	trigger:
+		set {_now} to "%now%"
+		replace all "/" and " " with ":" in {_now}
+		set {_now::*} to {_now} split at ":"
+		set {_ping} to player's ping
+		set {_tps} to tps
+		send "&8------------------------------------------"
+		send "&6Date: &e%{_now::1}%/%{_now::2}%/%{_now::3}% %{_now::4}%:%{_now::5}%"
+		send "&7Votre ping indique votre latence de connexion"
+		send "&3Votre ping est actuellement à &b%{_ping}% &3ms"
+		send "&7Le TPS indique si le serveur lag ou pas, &220 = &aparfait"
+		send "&3Le TPS indique actuellement &b%{_tps}%"
+		send "&8------------------------------------------"
+
+
+#---------------------------------------------------------------------------#
+#					   	 		CONFIGURATION								#
+#---------------------------------------------------------------------------#
+
+command /game [<text=help>] [<boolean>] [<player>]:
+	trigger:
+		if player is op:
+			if arg 1 is "help":
+				send "&e-------------- &fAide: &4Hunger Games&e--------------"
+				send "&7Voici la liste de toutes les commandes Hunger Games:"
+				send "&6/game start: &fLancer la partie."
+				send "&6/game pause: &fMet la partie en pause, désactivation de l'écoulement du temps."
+				send "&6/game reset &fRelance la partie !"
+			if arg 1 is "start":
+				if {HungerGames.isStart} is not set:
+					loop all players:
+						close inventory of loop-player
+						set the freeze state of loop-player to true
+						set the loop-player's gamemode to adventure
+						clear inventory of loop-player
+						execute console command "/start"
+				else:
+					send "&cLa partie est déja en cours ! Merci d'utiliser &c&l/game reset (ATTENTION TOUT SERA PERDU)"
+			if arg 1 is "reset":
+				broadcast "&8[&9HungerGames&8] &6La partie à bien été reset"
+				delete {HungerGames.isStart}
+				delete {HungerGames.isPaused}
+				delete {HungerGames.PVP}
+				set {HungerGames.Players} to number of all players
+				execute console command "/kill @e[type=Item]"
+				execute console command "/effect @a clear"
+				loop all players:
+					delete {timer.%loop-player%}
+					delete {cooldownV.%loop-player%}
+					clear loop-player's inventories
+					set slot 0 of inventory of loop-player to a name tag named "&6Choisir un kit &7(Clic-droit)"
+					set level of loop-player to 0
+					heal loop-player #Heal le joueur
+					set gamemode of loop-player to adventure
+					increase the loop-player's food level by 10
+					teleport loop-player to location (-7.5, 57, 452.5)
+					if the freeze state of loop-player is true:
+						set the freeze state of loop-player to false
+			if arg 1 is "pause":
+				if {HungerGames.isPaused} is not set:
+					set {HungerGames.isPaused} to now
+					loop all players:
+						set the freeze state of loop-player to true
+						send loop-player title "&cPAUSE !" with subtitle "&d%player%&7 a mis la partie en pause." for 4 seconds
+				else:
+					delete {HungerGames.isPaused}
+					loop all players:
+						set the freeze state of loop-player to false
+						send loop-player title "&aREPRISE !" with subtitle "&d%player%&7 a enlevé la pause." for 4 seconds
+
+command /reset:
+	executable by: console
+	trigger:
+		broadcast "&8[&9HungerGames&8] &6La partie à bien été reset"
+		delete {HungerGames.isStart}
+		delete {HungerGames.isPaused}
+		delete {HungerGames.PVP}
+		set {HungerGames.Players} to number of all players
+		execute console command "/kill @e[type=Item]"
+		execute console command "/effect @a clear"
+		execute console command "/tp @a -7.5 57 452.5"
+		loop all players:
+			delete {timer.%loop-player%}
+			delete {cooldownV.%loop-player%}
+			clear loop-player's inventories
+			set slot 0 of inventory of loop-player to a name tag named "&6Choisir un kit &7(Clic-droit)"
+			set level of loop-player to 0
+			heal loop-player #Heal le joueur
+			set gamemode of loop-player to adventure
+			increase the loop-player's food level by 10
+			if the freeze state of loop-player is true:
+				set the freeze state of loop-player to false
+
+command /start:
+	executable by: console
+	trigger:
+		send title from "&6Début partie dans" and "&e5 secondes" to players for 0, 10, 20
+		wait 1.5 second
+		send title from "&6Début partie dans" and "&e4 secondes" to players for 0, 10, 20
+		wait 1.5 second
+		send title from "&6Début partie dans" and "&e3 secondes" to players for 0, 10, 20
+		wait 1.5 second
+		send title from "&6Début partie dans" and "&e2 secondes" to players for 0, 10, 20
+		wait 1.5 second
+		send title from "&6Début partie dans" and "&e1 secondes" to players for 0, 10, 20
+		wait 1.5 second
+		loop all players:
+			teleport loop-player to {HungerGames.%{Position.%loop-player%}%}
+		execute console command "/fillcoffre"
+		execute console command "/start1"
+
+
+command /start1: #Alléa du start
+	executable by: console
+	trigger:
+		wait 1 second
+		loop all players:
+			play raw sound "note.pling" at loop-player with pitch 1 volume 1
+			send loop-player title "&65" with subtitle "" for 1 second
+		execute console command "/start2"
+
+command /start2: #Alléa du start
+	executable by: console
+	trigger:
+		wait 1 second
+		loop all players:
+			play raw sound "note.pling" at loop-player with pitch 1 volume 1
+			send loop-player title "&64" with subtitle "" for 1 second
+		execute console command "/start3"
+
+command /start3: #Alléa du start
+	executable by: console
+	trigger:
+		wait 1 second
+		loop all players:
+			play raw sound "note.pling" at loop-player with pitch 1 volume 1
+			send loop-player title "&63" with subtitle "" for 1 second
+		execute console command "/start4"
+
+command /start4: #Alléa du start
+	executable by: console
+	trigger:
+		wait 1 second
+		loop all players:
+			play raw sound "note.pling" at loop-player with pitch 1 volume 1
+			send loop-player title "&62" with subtitle "" for 1 second
+		execute console command "/start5"
+
+command /start5: #Alléa du start
+	executable by: console
+	trigger:
+		wait 1 second
+		loop all players:
+			play raw sound "note.pling" at loop-player with pitch 1 volume 1
+			send loop-player title "&c1" with subtitle "" for 1 second
+		execute console command "/startfinal"
+
+command /startfinal: #Alléa du start FINAL
+	executable by: console
+	trigger:
+		wait 1 second
+		set {HungerGames.isStart} to now
+		set {HungerGames.Time.M} to 0
+		set {HungerGames.Time.S} to 0
+		disable PvP in all worlds
+		loop all players:
+			set tab header to "   &3HungerGames   " and footer to "" for loop-player
+			set the freeze state of loop-player to false
+			play raw sound "random.explode" at loop-player with pitch 1 volume 1
+			set slot 8 of inventories of loop-player to compass named "&bPlayer Tracker"
+		if {Game.Kit} is set:
+			execute console command "/givekit"
+		broadcast "&8[&9HungerGames&8] &6Puisse le sort vous être favorable !"
+		broadcast "&8[&9HungerGames&8] &6Le PvP sera actif dans 20 secondes !"
+		wait 20 seconds
+		broadcast "&8[&9HungerGames&8] &6Le PvP est actif !"
+		enable PvP in all worlds
+		set {HungerGames.PVP} to now
+
+#---------------------------------------------------------------------------#
+#					          temps         								                          #
+#---------------------------------------------------------------------------#
+
+every 1 second:
+	if {HungerGames.isStart} is set:
+		if {HungerGames.isPaused} is not set:
+			add 1 to {HungerGames.Time.S}
+			if {HungerGames.Time.S} is more than or equal to 60:
+				set {HungerGames.Time.S} to 0
+				add 1 to {HungerGames.Time.M}
+	if {HungerGames.Time.S} is less than 10:
+		set {timerS} to "0%{HungerGames.Time.S}%"
+	else:
+		set {timerS} to "%{HungerGames.Time.S}%"
+	if {HungerGames.Time.M} is less than 10:
+		set {timerM} to "0%{HungerGames.Time.M}%"
+	else:
+		set {timerM} to "%{HungerGames.Time.M}%"
+	make all players execute command "/timermaj"
+#
+# every 1 second:
+# 	if {HungerGames.isStart} is set:
+# 		if {HungerGames.isPaused} is not set:
+# 			if {HungerGames.Time.M} is equal to 7:
+# 				if {HungerGames.Time.S} is equal to 50:
+# 					broadcast "&8[&9HungerGames&8] &6&eTéléportation des joueurs dans 10 secondes !"
+# 			if {HungerGames.Time.M} is equal to 7:
+# 				if {HungerGames.Time.S} is equal to 55:
+# 					loop all players:
+# 						if gamemode of loop-player is adventure:
+# 							play raw sound "note.pling" at loop-player with pitch 1 volume 1
+# 							send loop-player title "&65" with subtitle "" for 1 second
+# 					wait 1 second
+# 					loop all players:
+# 						if gamemode of loop-player is adventure:
+# 							play raw sound "note.pling" at loop-player with pitch 1 volume 1
+# 							send loop-player title "&64" with subtitle "" for 1 second
+# 					wait 1 second
+# 					loop all players:
+# 						if gamemode of loop-player is adventure:
+# 							play raw sound "note.pling" at loop-player with pitch 1 volume 1
+# 							send loop-player title "&63" with subtitle "" for 1 second
+# 					wait 1 second
+# 					loop all players:
+# 						if gamemode of loop-player is adventure:
+# 							play raw sound "note.pling" at loop-player with pitch 1 volume 1
+# 							send loop-player title "&62" with subtitle "" for 1 second
+# 					wait 1 second
+# 					loop all players:
+# 						if gamemode of loop-player is adventure:
+# 							play raw sound "note.pling" at loop-player with pitch 1 volume 1
+# 							send loop-player title "&61" with subtitle "" for 1 second
+# 					wait 1 second
+# 					loop all players:
+# 						if gamemode of loop-player is adventure:
+# 							teleport loop-player to {HungerGames.%{Position.%loop-player%}%}
+
+
+	#---------------------------------------------------------------------------#
+	#					          SYSTEME T'CHAT								                          #
+	#---------------------------------------------------------------------------#
+
+
+on chat:
+	if player is op:
+		cancel event
+		broadcast "&4&l[&4Admin&4&l] &4%player% &f> %message%"
+	else:
+		if gamemode of player is spectator:
+			cancel event
+			broadcast "&8&l[&7Spectateur&8&l] &7%player% &f> %message%"
+		else:
+			cancel event
+			broadcast "&a&l[&aVIP&a&l] &a%player% &f> %message%"
+
+command /timermaj:
+	trigger:
+		if {HungerGames.isStart} is set:
+			if {HungerGames.isStart} is set:
+				erase player's sidebar
+				set name of sidebar of player to "&4Hunger Games"
+				set score "%{Game.TeamView}%" in sidebar of player to 14
+				set score "%{Game.KitView}%" in sidebar of player to 13
+				set score "&7-----------" in sidebar of player to 12
+				set score "&eTribut &7> &f%{HungerGames.Players}%" in sidebar of player to 11
+				if {HungerGames.PVP} is not set:
+					set score "&ePVP &7> &f%round(20 - {HungerGames.Time.S})%" in sidebar of player to 10
+				# set score "&7---------" in sidebar of player to 9
+				# set score "&aVotre Zone" in sidebar of player to 8
+				# set score "&fZONE1" in sidebar of player to 7
+				set score "&7----------" in sidebar of player to 3
+				set score "&7Id &fHunger Games" in sidebar of player to 2
+				set score "&eMinecraft Mania" in sidebar of player to 1
+		else:
+			erase player's sidebar
+			set name of sidebar of player to "&4Hunger Games"
+			set score "%{Game.TeamView}%" in sidebar of player to 14
+			set score "%{Game.KitView}%" in sidebar of player to 13
+			# set score "&7-----------" in sidebar of player to 12
+			# set score "&eTribut &7> &f%{HungerGames.Players}%" in sidebar of player to 11
+			set score "&7----------" in sidebar of player to 10
+			set score "&7Id &fHunger Games" in sidebar of player to 2
+			set score "&eMinecraft Mania" in sidebar of player to 1
+		if {HungerGames.isStart} is not set:
+			set tab header to "&4&lHungerGames" and footer to "&8En attente de joueurs..." for player
+		else:
+			set tab header to "&4&lHungerGames" and footer to "&b&lTemps : &e%{timerM}%&6:&e%{timerS}%" for player
+
+#---------------------------------------------------------------------------#
+#					       SYSTEME EFFET DES JOURS							#
+#---------------------------------------------------------------------------#
+
+
+#---------------------------------------------------------------------------#
+#					       SYSTEME DETECTION MORTS							                      #
+#---------------------------------------------------------------------------#
+
+on death of player:
+	remove 1 from {HungerGames.Players}
+	if attacker is a player:
+		send "&7Gain D'EpiCoins + &625.00 (Kill)" to attacker
+		set death message to "&7Le tribut &e%victim% &7 est mort de la main de &c%attacker% !"
+	else:
+		set death message to "&7Le tribut &e%victim% &7 est mort de la nature!"
+	set gamemode of player to spectator
+	wait 1 tick
+	force player to respawn
+	wait 1 tick
+	play raw sound "mob.wither.spawn" at all players with pitch 1 volume 100
+
+#---------------------------------------------------------------------------#
+#					       	   SYSTEME AUTRE								                          #
+#---------------------------------------------------------------------------#
+
+
+on click with compass:
+	set {_distance} to 1999999
+	loop all players:
+		if gamemode of loop-player is not spectator:
+			if loop-player is not sneaking:
+				loop-player is not the player
+				set {_t} to distance between loop-player and player
+				{_t} is less than {_distance}
+				set {_distance} to {_t}
+				set {_p} to loop-player
+				set player's compass target to location of {_p} #NE MARCHE PAS!
+	if {_p} is not set:
+		set action bar of player to "&6&lPas de joueur à l'horizon"
+	else:
+		set action bar of player to "&e%{_p}% &6> &e%round({_distance})%m"
+
+on right click:
+	if clicked block is an anvil:
+		set clicked block to anvil
+
+on close inventory:#Break Chest
+	if {HungerGames.isStart} is set:
+		if event-inventory is inventory of the target block:
+			if gamemode of player is adventure:
+				if the target block is a chest:
+					set targeted block to air
+
+On Weather Change: #Désactiver le temps (neige, pluie, etc.)
+	cancel event
+
+command /spack: #Soundpack
+	trigger:
+		send player title "" with subtitle "&7Téléchargement du pack en cours..." for 3 seconds
+		send resourcepack "http://sensoria.rofp.shost.ca/SDPack.zip" to player
+
+command /bc [<text>]:
+	trigger:
+		if player is op:
+			if arg 1 is set:
+				broadcast "&d[Annonce]: &b%arg 1%"
+			else:
+				send "&cMerci de définir un message !"
+
+#---------------------------------------------------------------------------#
+#						 SYSTEME DETECTION VICTOIRE							                        #
+#---------------------------------------------------------------------------#
+
+
+on death of player:
+	wait 1 tick
+	loop all players:
+		if {HungerGames.Players} is 1:
+			if gamemode of loop-player is adventure:
+				broadcast "&8[&9HungerGames&8] &6&lVictoire de %loop-player% &e&k|| &l&bFélicitations &e&k||"
+				send "&7Gain D'EpiCoins + &625.00 (Victoire)" to loop-player
+				send "&7Gain De &bLegendaryCoins + &65.00 (Victoire)" to loop-player
+				wait 8 seconds
+				execute console command "/reset"

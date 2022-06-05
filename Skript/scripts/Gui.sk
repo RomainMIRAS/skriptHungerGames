@@ -1,0 +1,97 @@
+command /newkit:
+	trigger:
+		wait 1 tick
+		open chest with 3 rows named "&8Sélection : &e%{Kit::%player%}%" to player
+		wait 1 tick
+		play "CLICK" to player at volume 0.2
+		format slot 26 of player with beacon named "&l&4Spawn" to run [teleport player to location (-7.5, 57, 452.5)]
+		format slot 0 of player with gunpowder named "&l&8Maître des ombres" with lore "&7&oVotre spécialité est||&7&ol'assassinat furtif !||&7&oVos adversaires devraient||&7&ofaire gaffe derrière eux,||&7&ocar vous un coup de poignard||&7&oest vite arrivée !||||&b- Capacité spéciale &7Taillade des ombres||||&aVous possédez ce Kit" to run [make player execute command "/kit Ombre join"]
+		if player is op:
+			format slot 25 of player with firework star named "&l&eOption" with lore "&7&oPermet d'accéder au||&7&o option la partie de jeu !" to run [make player execute command "/option"]
+
+command /oldkit:
+	trigger:
+		wait 1 tick
+		open chest with 3 rows named "&8Sélection : &e%{Kit::%player%}%" to player
+		wait 1 tick
+		play "CLICK" to player at volume 0.2
+		format slot 26 of player with beacon named "&l&4Spawn" to run [teleport player to location (-7.5, 57, 452.5)]
+		format slot 0 of player with pumpkin pie named "&l&4Grand-Mère" with lore "&7&oVotre spécialité||&7&oc'est le gâteau à la moutarde,||&7&oet celle ci vous monte au nez !||&7&oDorénavant il faudra se méfier de vous,||&7&ovous n'êtes finalement pas  si inoffensive||||&e- Gâteau à la moutarde (Révèle votre vrai force)||&e- Cuillère de cuisine||&e- Tablier de grand-mère||||&aVous possédez ce Kit" to run [make player execute command "/kit Mamie join"]
+		format slot 2 of player with water bottle named "&l&4Russkov" with lore "&7&oVotre spécialité c'est la baston, et la vodka !||&7&oMais attention ça peut vous jouer des tours||||&e - De la Vodka !||||&aVous possédez ce Kit" to run [make player execute command "/kit Russkov join"]
+		format slot 3 of player with wither skeleton head named "&l&4Détraqueur" with lore "&7&oA la maniére des créatures||&7&odes ténèbres d'Harry Potter,||&7&ovous aurez la capacité||&7&ode ralentir vos ennemis||&7&oet de leur rappeler||&7&oleurs peurs les plus intimes||||&b- Capacité spéciale &7Baiser du détraqueur||&e- Tenu du détraqueur||||&aVous possédez ce Kit" to run [make player execute command "/kit detraqueur join"]
+		format slot 4 of player with TNT named "&l&4Terroriste" with lore "&7&oOn ne sait pas trop||&7&oquelles sont vos intentions,||&7&omais ce qui est sûr||&7&oc'est que vous avez assez||&7&od'explosif pour désintégrer||&7&ovos adversaires||||&e- 2 TNT améliorées||&e- 7 TNT normales||&e- 1 ticket de bateau clandestin||&e- 1 passport Epikubien||&e- 1 détonateur rouillé||||&aVous possédez ce Kit" to run [make player execute command "/kit Terroriste join"]
+		format slot 5 of player with feather named "&l&4Jetpack" with lore "&7&oCe kit vous permettra||&7&ode voler grâce à un Jetpack,||&7&oCependant attention à la chute !||||&e- JetPack||&e- Amortisseurs Celestes||||&aVous possédez ce Kit" to run [make player execute command "/kit Jetpack join"]
+		format slot 6 of player with mushroom stew named "&l&4PvP Soupe" with lore "&7&oPour les amoureux du pvp soupe !||&7&oEt des champignons...||||&e- 3 Pvp Soupes||||&aVous possédez ce Kit" to run [make player execute command "/kit pvpsoupe join"]
+		format slot 7 of player with vines named "&l&4Poison Ivy" with lore "&7&oVous êtes une sublime créature.||&7&oEt une des plus dangereuses !||&7&oLes plantes toxiques sont||&7&ovos alliées||||&b- Capacité spéciale &7Flower Power||&e- Tenu verte||||&aVous possédez ce Kit" to run [make player execute command "/kit Poison join"]
+		format slot 8 of player with packed ice named "&l&4Mr.Freeze" with lore "&7&oLe froid c'est ton dada !||&7&oQuelqu'un a demandé||&7&odes glaçons ?||||&b- Capacité spéciale &7Ice Beam||||&aVous possédez ce Kit" to run [make player execute command "/kit MR.Freeze join"]
+		format slot 9 of player with cobweb named "&l&4Spider" with lore "&7&oVos adrersaires se prendront dans vos toiles !||||&b- Capacité spéciale &7Web Trap||||&aVous possédez ce Kit" to run [make player execute command "/kit Spider join"]
+		format slot 10 of player with iron axe named "&l&4Thor" with lore "&7&oTout le pouvoir de la foudre||||&e- Mjöllnir||||&aVous possédez ce Kit" to run [make player execute command "/kit Thor join"]
+		if player is op:
+			format slot 25 of player with firework star named "&l&eOption" with lore "&7&oPermet d'accéder au||&7&o option la partie de jeu !" to run [make player execute command "/option"]
+
+command /choixkit:
+	trigger:
+		open chest with 1 rows named "&8Sélection : &e%{Kit::%player%}%" to player
+		wait 1 tick
+		play "CLICK" to player at volume 0.2
+		format slot 2 of player with dead bush named "&b&lAncien Kit" with lore "&7&oAccéder au ancien kit||&7&odu serveur Epicube !" to run [make player execute command "/oldkit"]
+		format slot 4 of player with beacon named "&4&lSpawn" to run [teleport player to location (-7.5, 57, 452.5)]
+		format slot 6 of player with oak sapling named "&b&lNouveau Kit" with lore "&7&oAccéder au nouveau kit||&7&ocréer et inventer par||&7&oce serveur !" to run [make player execute command "/newkit"]
+		format slot 0 of player with black stained glass pane named " " to be unstealable
+		format slot 1 of player with black stained glass pane named " " to be unstealable
+		format slot 3 of player with black stained glass pane named " " to be unstealable
+		format slot 5 of player with black stained glass pane named " " to be unstealable
+		format slot 7 of player with black stained glass pane named " " to be unstealable
+		format slot 8 of player with black stained glass pane named " " to be unstealable
+
+
+on rightclick with a name tag:
+	make player execute command "/choixkit"
+
+command /option:
+	trigger:
+		if player is op:
+			wait 1 tick
+			open chest with 1 rows named "&8Option de la Partie" to player
+			wait 1 tick
+			play "CLICK" to player at volume 0.2
+			format slot 4 of player with nether star named "&l&eStart" with lore "&7&oPermet de lancer||&7&ola partie de jeu !" to run [make player execute command "/game start"]
+			if {Game.Kit} is not set:
+				format slot 2 of player with red wool named "&l&4Kit désactivée" with lore "&7&oSélectionne si les kits||&7&osont activée !" to run [make player execute command "/kiton"]
+			else:
+				format slot 2 of player with wool:5 named "&l&4Kit activée" with lore "&7&oSélectionne si les kits||&7&osont activée !" to run [make player execute command "/kitoff"]
+			if {Game.Team} is not set:
+				format slot 6 of player with red wool named "&l&4Team désactivée" with lore "&7&oSélectionne si les team||&7&osont activée !" to run [make player execute command "/teamon"]
+			else:
+				format slot 6 of player with wool:5 named "&l&4Team activée" with lore "&7&oSélectionne si les team||&7&osont activée !" to run [make player execute command "/teamoff"]
+
+command /kiton:
+	trigger:
+		if player is op:
+			set {Game.Kit} to now
+			set {Game.KitView} to "&aAvec Kit ✔"
+			close inventory of player
+
+
+command /kitoff:
+	trigger:
+		if player is op:
+			delete {Game.Kit}
+			set {Game.KitView} to "&cSans Kit ✘"
+			close inventory of player
+
+
+command /teamon:
+	trigger:
+		if player is op:
+			set {Game.Team} to now
+			set {Game.TeamView} to "&aTeam ✔"
+			close inventory of player
+
+
+command /teamoff:
+	trigger:
+		if player is op:
+			delete {Game.Team}
+			set {Game.TeamView} to "&cTeam ✘"
+			close inventory of player
